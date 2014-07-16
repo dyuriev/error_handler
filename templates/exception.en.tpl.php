@@ -4,7 +4,7 @@
 <strong>Error code: </strong><?=$exception->getCode()?><br />
 <strong>Script path: </strong><?=$exception->getFile()?><strong> line: </strong><?=$exception->getLine()?><br /><br />
 <strong>Stack trace: </strong>
-<p><?=nl2br($exception->getTraceAsString())?></p>
+<p><?=nl2br($this->getExceptionTraceAsString($exception))?></p>
 <?else:?>
 We apologize that correctly work is impossible due an error.<br />
 Try to refresh this page in a few minutes or come back later.<br />

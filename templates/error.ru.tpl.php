@@ -1,6 +1,6 @@
 <h2>Во время выполнения произошла неисправимая ошибка.</h2>
 <? if(self::$show_debug):?>
-<? foreach ($this->app_errors as $app_error):?>
+<? foreach (self::$app_errors as $app_error):?>
 <strong>Уровень ошибки: </strong><?=$app_error['LEVEL']?><br />
 <strong>Текст ошибки: </strong><?=$app_error['MESSAGE']?><br />
 <strong>Скрипт: </strong><?=$app_error['FILE']?><strong> строка: </strong><?=$app_error['LINE']?><br />

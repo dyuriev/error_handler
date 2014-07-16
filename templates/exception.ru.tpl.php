@@ -4,7 +4,7 @@
 <strong>Код ошибки: </strong><?=$exception->getCode()?><br />
 <strong>Скрипт: </strong><?=$exception->getFile()?><strong> строка: </strong><?=$exception->getLine()?><br /><br />
 <strong>Трассировка вызовов: </strong>
-<p><?=nl2br($exception->getTraceAsString())?></p>
+<p><?=nl2br($this->getExceptionTraceAsString($exception))?></p>
 <?else:?>
 Корректная работа страницы невозможна, приносим свои извинения.<br />
 Попробуйте обновить страницу через несколько минут или вернитесь позже.<br />
