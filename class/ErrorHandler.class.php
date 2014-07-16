@@ -14,10 +14,10 @@ namespace DYuriev;
 */
 
 
-class ErrorHandler
+final class ErrorHandler
 {
 
-    private $app_errors=array();
+    private static $app_errors=array();
     private static $lang='en';
     private static $show_debug=false;
 
@@ -69,6 +69,11 @@ class ErrorHandler
         self::$lang=$lang;
     }
 
+    public static function getAppErrors()
+    {
+        return self::$app_errors;
+    }
+
     private function getErrTypeByInt($type)
     {
         switch($type)
@@ -109,7 +114,7 @@ class ErrorHandler
 
     public function handleError($err_no, $err_str, $err_file, $err_line)
     {
-        $this->app_errors[]=array(
+        self::$app_errors[]=array(
             'LEVEL'=>$this->getErrTypeByIntCode($err_no),
             'MESSAGE'=>$err_str,
             'FILE'=>$err_file,
@@ -148,14 +153,14 @@ class ErrorHandler
                 ini_set('memory_limit', (intval(ini_get('memory_limit'))+64)."M");
             }
 
-            $this->app_errors[]=array(
+            self::$app_errors[]=array(
                 'LEVEL'=>$this->getErrTypeByInt($error['type']),
                 'MESSAGE'=>$error['message'],
                 'FILE'=>$error['file'],
                 'LINE'=>$error['line']
             );
 
-            if(count($this->app_errors) > 0) {
+            if(count(self::$app_errors) > 0) {
                 $this->printErrors();
             }
 
