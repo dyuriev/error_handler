@@ -13,6 +13,11 @@ namespace DYuriev;
 * Supports messages on two languages: russian and english.
 */
 
+error_reporting(-1);
+ini_set("display_errors","Off");
+ini_set("display_startup_errors","Off");
+ini_set("html_errors","Off");
+
 define('ERROR_HANDLER_DIR',__DIR__);
 require_once(ERROR_HANDLER_DIR.'/class/ErrorHandler.class.php');
 
