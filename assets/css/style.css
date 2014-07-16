@@ -1,0 +1,25 @@
+html, body {
+    height: 99%;
+}
+
+body {
+    background-image: url('/vendor/dyuriev/error_handler/assets/img/background.jpg');
+    background-attachment: fixed;
+    background-size: 100%;
+    font-family: 'Open Sans', sans-serif;
+}
+
+.err_container {
+    position: absolute;
+    overflow:visible;
+    width: auto;
+    background: #F0ECEA;
+    font-size: 14px;
+    font-weight: 400;
+    border: 1px solid rgb(190, 186, 186);
+    padding: 25px;
+    padding-bottom:35px;
+    border-radius: 5px;
+    box-shadow: 5px 5px 5px 5px #3a3a3a;
+    line-height: 1.6em;
+}

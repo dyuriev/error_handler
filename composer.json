@@ -1,0 +1,18 @@
+{
+    "name": "dyuriev/error_handler",
+    "description": "A small useful library that helps to handle PHP fatal errors and exceptions.",
+    "version": "1.0",
+    "keywords": ["php fatal errors", "php", "fatal"],
+    "homepage": "http://github.com/dyuriev/error_gandler",
+    "license": "AGPLv3",
+    "authors": [
+        {
+            "name": "Dmitriy Yuriev",
+            "email": "coolkid00@gmail.com",
+            "homepage": "http://github.com/dyuriev/error_gandler"
+        }
+    ],
+    "autoload": {
+        "files": ["error_handler_require.php"]
+    }
+}
