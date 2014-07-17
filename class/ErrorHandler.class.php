@@ -167,6 +167,7 @@ final class ErrorHandler
         }
 
         $err_container_file='exception.'.self::$lang.'.tpl.php';
+        header('HTTP/1.1 500 Internal Server Error', true, 500);
         include_once(ERROR_HANDLER_DIR.'/templates/main.tpl.php');
     }
 
@@ -177,6 +178,7 @@ final class ErrorHandler
         }
 
         $err_container_file='error.'.self::$lang.'.tpl.php';
+        header('HTTP/1.1 500 Internal Server Error', true, 500);
         include_once(ERROR_HANDLER_DIR.'/templates/main.tpl.php');
     }
 
