@@ -16,6 +16,6 @@
 </head>
 <body>
 <div class="err_container">
-    <?include_once($err_container_file)?>
+    <?php include_once($err_container_file)?>
 </div>
 </body></html>
