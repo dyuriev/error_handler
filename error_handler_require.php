@@ -21,7 +21,10 @@ ini_set("html_errors","Off");
 define('ERROR_HANDLER_DIR',__DIR__);
 require_once(ERROR_HANDLER_DIR.'/class/ErrorHandler.class.php');
 
-$error_handler=new ErrorHandler;
+$error_handler=new ErrorHandler(
+    \Swift_Mailer::newInstance(\Swift_MailTransport::newInstance()),
+    \Swift_Message::newInstance()
+);
 
 set_error_handler(function($err_no, $err_str, $err_file, $err_line) use ($error_handler) {
         $error_handler->handleError($err_no, $err_str, $err_file, $err_line);

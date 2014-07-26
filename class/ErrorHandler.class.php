@@ -16,10 +16,21 @@ namespace DYuriev;
 
 final class ErrorHandler
 {
-
     private static $app_errors=array();
     private static $lang='en';
-    private static $show_debug=false;
+    private static $is_send_emails=true;
+    private static $show_debug=true;
+    private static $mail_from=array('error_handler@domain.org' => 'error_handler reporting service');
+    private static $mail_to=array('coolkid00@gmail.com' => 'Dmitriy S. Yuriev');
+
+    private $mailer=null;
+    private $message=null;
+
+    public function __construct(\Swift_Mailer $mailer=null, \Swift_Message $message=null)
+    {
+        $this->mailer=$mailer;
+        $this->message=$message;
+    }
 
     private function getErrTypeByIntCode($type)
     {
@@ -59,14 +70,21 @@ final class ErrorHandler
         return false;
     }
 
-    private function getExceptionTraceAsString(\Exception $exception) {
-        $rtn = "";
+    private function getExceptionTraceAsString(\Exception $exception)
+    {
+        $output = "";
         $count = 0;
+
         foreach ($exception->getTrace() as $frame) {
+
             $args = "";
+
             if (isset($frame['args'])) {
+
                 $args = array();
+
                 foreach ($frame['args'] as $arg) {
+
                     if (is_string($arg)) {
                         $args[] = "'" . $arg . "'";
                     } elseif (is_array($arg)) {
@@ -83,20 +101,24 @@ final class ErrorHandler
                         $args[] = $arg;
                     }
                 }
-                $args = join(", ", $args);
+
+                $args = explode(", ", $args);
             }
-            $rtn .= sprintf( "#%s %s(%s): %s(%s)\n",
+
+            $output .= sprintf( "#%s %s(%s): %s(%s)\n",
                 $count,
                 isset($frame['file']) ? $frame['file'] : 'unknown file',
                 isset($frame['line']) ? $frame['line'] : 'unknown line',
                 (isset($frame['class'])) ? $frame['class'].$frame['type'].$frame['function'] : $frame['function'],
                 $args );
+
             $count++;
         }
-        return $rtn;
+
+        return $output;
     }
 
-    public static function setDebug($show_debug=false)
+    public static function setDebug($show_debug=true)
     {
         self::$show_debug=$show_debug;
     }
@@ -104,6 +126,21 @@ final class ErrorHandler
     public static function setLang($lang='en')
     {
         self::$lang=$lang;
+    }
+
+    public static function setMailFrom(Array $mail_from=array())
+    {
+        self::$mail_from=$mail_from;
+    }
+
+    public static function setMailTo(Array $mail_to=array())
+    {
+        self::$mail_to=$mail_to;
+    }
+
+    public static function setSendEmails($is_send_emails=true)
+    {
+        self::$is_send_emails=$is_send_emails;
     }
 
     public static function getAppErrors()
@@ -149,6 +186,43 @@ final class ErrorHandler
         return false;
     }
 
+    private function prepareExceptionMessage(\Exception $exception)
+    {
+        ob_start();
+        echo \Input::SERVER('REQUEST_URI').'<br><br>';
+        include_once(ERROR_HANDLER_DIR.'/templates/mail.exception.'.self::$lang.'.tpl.php');
+        $mail_body=ob_get_contents();
+        ob_end_clean();
+
+        $this->message->setSubject('An exception is occured during runtime.')
+        ->setFrom(self::$mail_from)
+        ->setTo(self::$mail_to)
+        ->setBody($mail_body,'text/html');
+
+        return $this;
+    }
+
+    private function prepareErrorMessage()
+    {
+        ob_start();
+        echo 'Request URI: '.\Input::SERVER('REQUEST_URI').'<br><br>';
+        include_once(ERROR_HANDLER_DIR.'/templates/mail.error.'.self::$lang.'.tpl.php');
+        $mail_body=ob_get_contents();
+        ob_end_clean();
+
+        $this->message->setSubject('An error is occured during runtime.')
+            ->setFrom(self::$mail_from)
+            ->setTo(self::$mail_to)
+            ->setBody($mail_body,'text/html');
+
+        return $this;
+    }
+
+    private function sendMessage()
+    {
+        $this->mailer->send($this->message);
+    }
+
     public function handleError($err_no, $err_str, $err_file, $err_line)
     {
         self::$app_errors[]=array(
@@ -160,7 +234,7 @@ final class ErrorHandler
         );
     }
 
-    public function handleException(Exception $exception)
+    public function handleException(\Exception $exception)
     {
         if(ob_get_level()) {
             ob_end_clean();
@@ -169,6 +243,10 @@ final class ErrorHandler
         $err_container_file='exception.'.self::$lang.'.tpl.php';
         header('HTTP/1.1 500 Internal Server Error', true, 500);
         include_once(ERROR_HANDLER_DIR.'/templates/main.tpl.php');
+
+        if(self::$is_send_emails && is_object($this->mailer) && is_object($this->message)) {
+            $this->prepareExceptionMessage($exception)->sendMessage();
+        }
     }
 
     public function printErrors()
@@ -201,6 +279,10 @@ final class ErrorHandler
 
             if(count(self::$app_errors) > 0) {
                 $this->printErrors();
+
+                if(self::$is_send_emails && is_object($this->mailer) && is_object($this->message)) {
+                    $this->prepareErrorMessage()->sendMessage();
+                }
             }
 
             exit(1);

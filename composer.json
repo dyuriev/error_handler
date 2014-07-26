@@ -12,6 +12,9 @@
             "homepage": "http://github.com/dyuriev/error_gandler"
         }
     ],
+    "require": {
+        "swiftmailer/swiftmailer": "@stable"
+    },
     "autoload": {
         "files": ["error_handler_require.php"]
     }
