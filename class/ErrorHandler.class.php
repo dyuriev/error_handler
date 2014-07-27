@@ -4,7 +4,7 @@ namespace DYuriev;
 /*
 * @author: Dmitriy Yuriev <coolkid00@gmail.com>
 * @product: error_handler
-* @version: 1.1.0
+* @version: 1.1.1
 * @release date: 27.07.2014
 * @development started: 15.07.2014
 * @license: GNU AGPLv3 <http://www.gnu.org/licenses/agpl.txt>
@@ -45,6 +45,26 @@ final class ErrorHandler
         }
 
         return false;
+    }
+
+    private function getServer($arg)
+    {
+        if(isset($_SERVER) && is_array($_SERVER)) {
+            return $_SERVER[$arg];
+        } else {
+            return \Input::SERVER($arg);
+        }
+    }
+
+    private function getCurrentURL()
+    {
+        $https=$this->getServer('HTTPS');
+        $proto=(!empty($https) && $https != 'off') ? 'https://' : 'http://';
+        $host=$this->getServer('HTTP_HOST');
+        $request_uri=$this->getServer('REQUEST_URI');
+        $request_method=$this->getServer('REQUEST_METHOD');
+
+        return 'REQUEST URL: '.$proto.$host.$request_uri.'<br>METHOD: '.$request_method;
     }
 
     private function getErrTypeByIntCode($type)
@@ -192,7 +212,7 @@ final class ErrorHandler
     {
         ob_start();
         include_once(ERROR_HANDLER_DIR.'/templates/'.$this->config['lang'].'/mail.exception.tpl.php');
-        $mail_body=ob_get_contents();
+        $mail_body=$this->getCurrentURL().'<br><br>'.ob_get_contents();
         ob_end_clean();
 
         $this->message->setSubject($this->config['mail_subject'])
@@ -207,7 +227,7 @@ final class ErrorHandler
     {
         ob_start();
         include_once(ERROR_HANDLER_DIR.'/templates/'.$this->config['lang'].'/mail.error.tpl.php');
-        $mail_body=ob_get_contents();
+        $mail_body=$this->getCurrentURL().'<br><br>'.ob_get_contents();
         ob_end_clean();
 
         $this->message->setSubject($this->config['mail_subject'])
