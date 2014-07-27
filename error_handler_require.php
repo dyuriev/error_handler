@@ -4,8 +4,8 @@ namespace DYuriev;
 /*
 * @author: Dmitriy Yuriev <coolkid00@gmail.com>
 * @product: error_handler
-* @version: 1.0.1
-* @release date: 16.07.2014
+* @version: 1.1.0
+* @release date: 27.07.2014
 * @development started: 15.07.2014
 * @license: GNU AGPLv3 <http://www.gnu.org/licenses/agpl.txt>
 *

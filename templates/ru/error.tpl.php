@@ -1,5 +1,5 @@
 <h2>Во время выполнения произошла неисправимая ошибка.</h2>
-<? if(self::$show_debug):?>
+<? if($this->config['show_debug']):?>
 <? foreach (self::$app_errors as $app_error):?>
 <strong>Уровень ошибки: </strong><?php echo $app_error['LEVEL']?><br />
 <strong>Текст ошибки: </strong><?php echo $app_error['MESSAGE']?><br />

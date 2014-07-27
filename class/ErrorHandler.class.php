@@ -4,8 +4,8 @@ namespace DYuriev;
 /*
 * @author: Dmitriy Yuriev <coolkid00@gmail.com>
 * @product: error_handler
-* @version: 1.0.1
-* @release date: 16.07.2014
+* @version: 1.1.0
+* @release date: 27.07.2014
 * @development started: 15.07.2014
 * @license: GNU AGPLv3 <http://www.gnu.org/licenses/agpl.txt>
 *
@@ -17,19 +17,34 @@ namespace DYuriev;
 final class ErrorHandler
 {
     private static $app_errors=array();
-    private static $lang='en';
-    private static $is_send_emails=true;
-    private static $show_debug=true;
-    private static $mail_from=array('error_handler@domain.org' => 'error_handler reporting service');
-    private static $mail_to=array('coolkid00@gmail.com' => 'Dmitriy S. Yuriev');
+    private static $self_instance=null;
 
     private $mailer=null;
     private $message=null;
+    private $config=array();
 
     public function __construct(\Swift_Mailer $mailer=null, \Swift_Message $message=null)
     {
         $this->mailer=$mailer;
         $this->message=$message;
+
+        if($config=$this->loadConfig()) {
+
+            $this->config=$config;
+        }
+
+        self::$self_instance=$this;
+    }
+
+    private function loadConfig()
+    {
+        $config_file=ERROR_HANDLER_DIR.'/config/config.php';
+
+        if (file_exists($config_file) && is_readable($config_file)) {
+            return include_once($config_file);
+        }
+
+        return false;
     }
 
     private function getErrTypeByIntCode($type)
@@ -118,29 +133,16 @@ final class ErrorHandler
         return $output;
     }
 
-    public static function setDebug($show_debug=true)
+    public static function configure(Array $config=null)
     {
-        self::$show_debug=$show_debug;
+        if(is_array($config) && count($config) > 0) {
+            self::$self_instance->setConfig($config);
+        }
     }
 
-    public static function setLang($lang='en')
+    public function setConfig(Array $config)
     {
-        self::$lang=$lang;
-    }
-
-    public static function setMailFrom(Array $mail_from=array())
-    {
-        self::$mail_from=$mail_from;
-    }
-
-    public static function setMailTo(Array $mail_to=array())
-    {
-        self::$mail_to=$mail_to;
-    }
-
-    public static function setSendEmails($is_send_emails=true)
-    {
-        self::$is_send_emails=$is_send_emails;
+        $this->config=array_merge($this->config,$config);
     }
 
     public static function getAppErrors()
@@ -189,14 +191,13 @@ final class ErrorHandler
     private function prepareExceptionMessage(\Exception $exception)
     {
         ob_start();
-        echo \Input::SERVER('REQUEST_URI').'<br><br>';
-        include_once(ERROR_HANDLER_DIR.'/templates/mail.exception.'.self::$lang.'.tpl.php');
+        include_once(ERROR_HANDLER_DIR.'/templates/'.$this->config['lang'].'/mail.exception.tpl.php');
         $mail_body=ob_get_contents();
         ob_end_clean();
 
-        $this->message->setSubject('An exception is occured during runtime.')
-        ->setFrom(self::$mail_from)
-        ->setTo(self::$mail_to)
+        $this->message->setSubject($this->config['mail_subject'])
+        ->setFrom($this->config['mail_from'])
+        ->setTo($this->config['mail_to'])
         ->setBody($mail_body,'text/html');
 
         return $this;
@@ -205,14 +206,13 @@ final class ErrorHandler
     private function prepareErrorMessage()
     {
         ob_start();
-        echo 'Request URI: '.\Input::SERVER('REQUEST_URI').'<br><br>';
-        include_once(ERROR_HANDLER_DIR.'/templates/mail.error.'.self::$lang.'.tpl.php');
+        include_once(ERROR_HANDLER_DIR.'/templates/'.$this->config['lang'].'/mail.error.tpl.php');
         $mail_body=ob_get_contents();
         ob_end_clean();
 
-        $this->message->setSubject('An error is occured during runtime.')
-            ->setFrom(self::$mail_from)
-            ->setTo(self::$mail_to)
+        $this->message->setSubject($this->config['mail_subject'])
+            ->setFrom($this->config['mail_from'])
+            ->setTo($this->config['mail_to'])
             ->setBody($mail_body,'text/html');
 
         return $this;
@@ -240,11 +240,11 @@ final class ErrorHandler
             ob_end_clean();
         }
 
-        $err_container_file='exception.'.self::$lang.'.tpl.php';
+        $err_container_file=ERROR_HANDLER_DIR.'/templates/'.$this->config['lang'].'/exception.tpl.php';
         header('HTTP/1.1 500 Internal Server Error', true, 500);
         include_once(ERROR_HANDLER_DIR.'/templates/main.tpl.php');
 
-        if(self::$is_send_emails && is_object($this->mailer) && is_object($this->message)) {
+        if($this->config['is_send_emails'] && is_object($this->mailer) && is_object($this->message)) {
             $this->prepareExceptionMessage($exception)->sendMessage();
         }
     }
@@ -255,7 +255,7 @@ final class ErrorHandler
             ob_end_clean();
         }
 
-        $err_container_file='error.'.self::$lang.'.tpl.php';
+        $err_container_file=ERROR_HANDLER_DIR.'/templates/'.$this->config['lang'].'/error.tpl.php';
         header('HTTP/1.1 500 Internal Server Error', true, 500);
         include_once(ERROR_HANDLER_DIR.'/templates/main.tpl.php');
     }
@@ -280,7 +280,7 @@ final class ErrorHandler
             if(count(self::$app_errors) > 0) {
                 $this->printErrors();
 
-                if(self::$is_send_emails && is_object($this->mailer) && is_object($this->message)) {
+                if($this->config['is_send_emails'] && is_object($this->mailer) && is_object($this->message)) {
                     $this->prepareErrorMessage()->sendMessage();
                 }
             }

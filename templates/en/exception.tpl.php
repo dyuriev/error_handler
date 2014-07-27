@@ -1,5 +1,5 @@
 <h2>An exception is occured during runtime.</h2>
-<?if(self::$show_debug):?>
+<?if($this->config['show_debug']):?>
 <strong>Error message: </strong><?php echo $exception->getMessage()?><br />
 <strong>Error code: </strong><?php echo $exception->getCode()?><br />
 <strong>Script path: </strong><?php echo $exception->getFile()?><strong> line: </strong><?php echo $exception->getLine()?><br /><br />

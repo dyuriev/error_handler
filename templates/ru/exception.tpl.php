@@ -1,5 +1,5 @@
 <h2>Во время выполнения возникла исключительная ситуация.</h2>
-<?if(self::$show_debug):?>
+<?if($this->config['show_debug']):?>
 <strong>Текст ошибки: </strong><?php echo $exception->getMessage()?><br />
 <strong>Код ошибки: </strong><?php echo $exception->getCode()?><br />
 <strong>Скрипт: </strong><?php echo $exception->getFile()?><strong> строка: </strong><?php echo $exception->getLine()?><br /><br />
