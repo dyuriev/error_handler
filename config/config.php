@@ -2,7 +2,7 @@
 
 return array(
     'lang' => 'en',
-    'is_send_emails' => true,
+    'is_send_emails' => false,
     'show_debug' => true,
     'mail_from' => array('error_handler@domain.org' => 'error_handler library'),
     'mail_to' => array('coolkid00@gmail.com' => 'Dmitriy S. Yuriev'),

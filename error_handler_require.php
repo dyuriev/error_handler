@@ -26,14 +26,21 @@ $error_handler=new ErrorHandler(
     \Swift_Message::newInstance()
 );
 
-set_error_handler(function($err_no, $err_str, $err_file, $err_line) use ($error_handler) {
+set_error_handler(
+    function($err_no, $err_str, $err_file, $err_line) use ($error_handler) {
         $error_handler->handleError($err_no, $err_str, $err_file, $err_line);
-    },E_ALL | E_STRICT);
+    },
+    E_ALL | E_STRICT
+);
 
-set_exception_handler(function ($exception) use ($error_handler) {
+set_exception_handler(
+    function ($exception) use ($error_handler) {
         $error_handler->handleException($exception);
-});
+    }
+);
 
-register_shutdown_function(function() use ($error_handler) {
+register_shutdown_function(
+    function() use ($error_handler) {
         $error_handler->handleShutdown();
-});
+    }
+);

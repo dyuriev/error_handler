@@ -162,7 +162,12 @@ final class ErrorHandler
 
     public function setConfig(Array $config)
     {
-        $this->config=array_merge($this->config,$config);
+        $this->config = array_merge($this->config,$config);
+    }
+
+    public function setConfigValue($entry, $value)
+    {
+        $this->config[$entry] = $value;
     }
 
     public static function getAppErrors()
@@ -240,7 +245,9 @@ final class ErrorHandler
 
     private function sendMessage()
     {
-        $this->mailer->send($this->message);
+        if($this->config['is_send_emails']) {
+            $this->mailer->send($this->message);
+        }
     }
 
     public function handleError($err_no, $err_str, $err_file, $err_line)
